@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FitnessTrackerSchool.Database;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace FitnessTrackerSchool.Classes
 {
@@ -19,18 +19,19 @@ namespace FitnessTrackerSchool.Classes
         public DateTime Date { get; set; }
         public int TargetCalories { get; set; }
         public bool IsAchieved { get; set; }
-        
-        private static readonly string connString = DatabaseHandler.connectionString;
+
+
+        private static readonly string connString = DatabaseHandler.connString;
         public DataTable SelectByUser(int userId)
         {
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(connString);
             DataTable dt = new DataTable();
             try
             {
                 string sql = "SELECT * FROM tbl_goal WHERE user_id = @user_id";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", userId);
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
                 adapter.Fill(dt);
             }
@@ -48,11 +49,11 @@ namespace FitnessTrackerSchool.Classes
         public bool Insert(GoalClass goal)
         {
             bool isSuccess = false;
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(connString);
             try
             {
                 string sql = "INSERT INTO tbl_goal (user_id, date, target_calories) VALUES (@user_id, @date, @targetCalories)";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@targetCalories", TargetCalories);
@@ -84,11 +85,11 @@ namespace FitnessTrackerSchool.Classes
             int userId = Session.CurrentUserId;
             string dateString = date.ToString("yyyy-MM-dd");
             
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(connString);
             try
             {
                 string sql = "UPDATE tbl_goal SET is_achieved = 1 WHERE user_id = @userId AND date = @date";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@date", dateString);
 
@@ -109,10 +110,10 @@ namespace FitnessTrackerSchool.Classes
         public static bool HasActiveGoal(int userId)
         {
             string today = DateTime.Now.Date.ToString("yyyy-MM-dd");
-            SQLiteConnection conn = new SQLiteConnection(DatabaseHandler.connectionString);
-            const string sql = @"SELECT COUNT(*) FROM tbl_goal WHERE user_id = @userId AND is_achieved = 0 AND date = @today";
+            SqlConnection conn = new SqlConnection(DatabaseHandler.connString);
+            const string sql = @"SELECT COUNT(*) FROM tbl_goal WHERE user_id = @userId AND date = @today";
 
-            SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+            SqlCommand cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@today", today);
             conn.Open();
@@ -124,8 +125,8 @@ namespace FitnessTrackerSchool.Classes
         {
             string dateString = date.ToString("yyyy-MM-dd");
             const string sql = @"SELECT COUNT(*) FROM tbl_goal WHERE user_id = @userId AND date = @date";
-            SQLiteConnection conn = new SQLiteConnection(connString);
-            SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+            SqlConnection conn = new SqlConnection(connString);
+            SqlCommand cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@date", dateString);
             conn.Open();
@@ -137,14 +138,28 @@ namespace FitnessTrackerSchool.Classes
         public static int GetGoalForDate(int userId, DateTime date)
         {
             string dateString = date.ToString("yyyy-MM-dd");
-            const string sql = "SELECT target_calories FROM tbl_goal WHERE user_id=@uid AND date=@date AND is_achieved=0 LIMIT 1";
-            SQLiteConnection conn = new SQLiteConnection(connString);
-            SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+            const string sql = "SELECT target_calories FROM tbl_goal WHERE user_id=@uid AND date=@date AND is_achieved=0";
+            SqlConnection conn = new SqlConnection(connString);
+            SqlCommand cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@uid", userId);
             cmd.Parameters.AddWithValue("@date", dateString);
             conn.Open();
             object result = cmd.ExecuteScalar();
             return result == null ? 0 : Convert.ToInt32(result);
+        }
+
+        public static bool IsGoalAchieved(int userId, DateTime date)
+        {
+            string dateString = date.ToString("yyyy-MM-dd");
+            const string sql = @"SELECT COUNT(*) FROM tbl_goal WHERE user_id = @userId AND date = @date AND is_achieved=1";
+            SqlConnection conn = new SqlConnection(connString);
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
+            cmd.Parameters.AddWithValue("@date", dateString);
+            conn.Open();
+
+            int count = Convert.ToInt32(cmd.ExecuteScalar() ?? 0);
+            return count > 0;
         }
     }
 }

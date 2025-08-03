@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FitnessTrackerSchool.Database;
 
 namespace FitnessTrackerSchool.Classes
 {
@@ -25,20 +24,20 @@ namespace FitnessTrackerSchool.Classes
 
         public abstract double CalculateCalories();
 
-        private static readonly string connString = DatabaseHandler.connectionString;
+        private static readonly string connString = DatabaseHandler.connString;
 
         public static DataTable LoadActivitiesForDate(DateTime date)
         {
             DataTable table = new DataTable();
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(connString);
 
             try
             {
                 string sql = @"SELECT  activity_id AS Id, date AS Date, activity_type AS Activity, calories_burned AS Calories FROM tbl_activity WHERE user_id = @userId AND date = @date";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@userId", Session.CurrentUserId);
                 cmd.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd"));
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
 
                 conn.Open();
                 adapter.Fill(table);
@@ -58,15 +57,15 @@ namespace FitnessTrackerSchool.Classes
         public static DataTable LoadActivitiesForAll(int userId)
         {
             DataTable table = new DataTable();
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(connString);
 
             try
             {
                 string sql = @"SELECT  activity_id AS Id, date AS Date, activity_type AS Activity, calories_burned AS Calories FROM tbl_activity WHERE user_id = @userId ORDER BY date DESC";
                 
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@userId", Session.CurrentUserId);
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
 
                 conn.Open();
                 adapter.Fill(table);
@@ -87,11 +86,11 @@ namespace FitnessTrackerSchool.Classes
 
         public static bool DeleteActivity(int activityId)
         {
-            SQLiteConnection conn = new SQLiteConnection(DatabaseHandler.connectionString);
+            SqlConnection conn = new SqlConnection(connString);
             bool isDeleted = false;
             try
             {
-                SQLiteCommand cmd = new SQLiteCommand(
+                SqlCommand cmd = new SqlCommand(
                 "DELETE FROM tbl_activity WHERE activity_id = @id", conn);
                 cmd.Parameters.AddWithValue("@id", activityId);
                 conn.Open();
@@ -131,9 +130,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity (user_id, date, duration, metric2, metric3, calories_burned, activity_type) VALUES (@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Walking');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);
@@ -159,9 +158,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity (user_id, date, duration, metric2, metric3, calories_burned, activity_type) VALUES (@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Swimming');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);
@@ -187,9 +186,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity (user_id, date, duration, metric2, metric3, calories_burned, activity_type) VALUES (@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Running');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);
@@ -215,9 +214,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity (user_id, date, duration, metric2, metric3, calories_burned, activity_type) VALUES (@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Cycling');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);
@@ -243,9 +242,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity (user_id, date, duration, metric2, metric3, calories_burned, activity_type) VALUES (@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Jump Rope');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);
@@ -271,9 +270,9 @@ namespace FitnessTrackerSchool.Classes
 
             public bool Insert()
             {
-                SQLiteConnection conn = new SQLiteConnection(connString);
+                SqlConnection conn = new SqlConnection(connString);
                 string sql = @"INSERT INTO tbl_activity(user_id, date, duration, metric2, metric3, calories_burned, activity_type)VALUES(@user_id, @date, @duration, @metric2, @metric3, @calories_burned, 'Rowing');";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_id", UserId);
                 cmd.Parameters.AddWithValue("@date", Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@duration", Duration);

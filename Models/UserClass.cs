@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FitnessTrackerSchool.Database;
 
 namespace FitnessTrackerSchool.Classes
 {
@@ -26,17 +25,15 @@ namespace FitnessTrackerSchool.Classes
         public string Gender { get; set; }
         public int Age { get; set; }
 
-        private static readonly string connString = DatabaseHandler.connectionString;
-
         public DataTable Select()
         {
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(DatabaseHandler.connString);
             DataTable dt = new DataTable();
             try
             {
                 string sql = "SELECT user_id FROM tbl_user WHERE user_name = @username AND password = @password";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
                 adapter.Fill(dt);
             }
@@ -55,11 +52,11 @@ namespace FitnessTrackerSchool.Classes
         public bool Insert(UserClass user)
         {
             bool isSuccess = false;
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(DatabaseHandler.connString);
             try
             {
                 string sql = "INSERT INTO tbl_user (user_name, password, height, weight, birthdate, phone, address, gender, age) VALUES (@user_name, @password, @height, @weight, @birthdate, @phone, @address, @gender, @age)";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@user_name", user.UserName);
                 cmd.Parameters.AddWithValue("@password", user.Password);
                 cmd.Parameters.AddWithValue("@height", user.Height);
@@ -96,12 +93,12 @@ namespace FitnessTrackerSchool.Classes
         public bool Login(string username, string password)
         {
             bool isSuccess = false;
-            SQLiteConnection conn = new SQLiteConnection(connString);
+            SqlConnection conn = new SqlConnection(DatabaseHandler.connString);
 
             try
             {
                 string sql = "SELECT user_id FROM tbl_user WHERE user_name = @username AND password = @password";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@username", username);
                 cmd.Parameters.AddWithValue("@password", password);
 
@@ -128,8 +125,8 @@ namespace FitnessTrackerSchool.Classes
         public static int getWeight(int userId)
         {
             const string sql = "SELECT weight FROM tbl_user WHERE user_id = @userId";
-            SQLiteConnection conn = new SQLiteConnection(connString);
-            SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+            SqlConnection conn = new SqlConnection(DatabaseHandler.connString);
+            SqlCommand cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@uid", userId);
             conn.Open();
             object result = cmd.ExecuteScalar();

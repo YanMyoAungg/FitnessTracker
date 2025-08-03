@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FitnessTrackerSchool.Classes;
-using FitnessTrackerSchool.Database;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace FitnessTrackerSchool
@@ -282,7 +281,7 @@ namespace FitnessTrackerSchool
 
             // Get the activity ID from the hidden column
             int activityId = (int)dgvActivities.Rows[e.RowIndex].Cells["Id"].Value;
-            MessageBox.Show(activityId.ToString());
+            //MessageBox.Show(activityId.ToString());
 
             // Confirm deletion
             var result = MessageBox.Show(
@@ -293,7 +292,7 @@ namespace FitnessTrackerSchool
 
             if (result != DialogResult.Yes) return;
 
-            SQLiteConnection conn = new SQLiteConnection(DatabaseHandler.connectionString);
+            SQLiteConnection conn = new SQLiteConnection(DatabaseHandler.connString);
             SQLiteCommand cmd = new SQLiteCommand("DELETE FROM tbl_activity WHERE activity_id = @id", conn);
             cmd.Parameters.AddWithValue("@id", activityId);
             conn.Open();
@@ -382,7 +381,15 @@ namespace FitnessTrackerSchool
             int goalTarget = GoalClass.GetGoalForDate(currentUserId, date);
             lblGoalTarget.Text = $"Today's Goal: {goalTarget:0.00} cal";
             DateTime dateString = dateTimePicker1.Value;
-            
+            bool isAchieved = GoalClass.IsGoalAchieved(currentUserId, date);
+
+            if (isAchieved)
+            {
+                lblGoalStatus.Text = "Goal achieved.";
+                lblGoalStatus.ForeColor = Color.Purple;
+                lblGoalStatus.Font = new Font(lblGoalStatus.Font, FontStyle.Bold);
+                return;
+            }
             if (goalTarget > 0)
             {
 
@@ -403,7 +410,7 @@ namespace FitnessTrackerSchool
                 lblGoalStatus.Text = "No goal set for this date.";
                 lblGoalStatus.ForeColor = Color.Blue;
                 lblGoalStatus.Font = new Font(lblGoalStatus.Font, FontStyle.Bold);
-            } 
+            }
         }
         
 
